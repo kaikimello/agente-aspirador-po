@@ -1,5 +1,6 @@
 package principal;
 
+import agente.AspiradorPo;
 import ambiente.Sala;
 
 import java.util.InputMismatchException;
@@ -7,13 +8,21 @@ import java.util.Scanner;
 
 public class AgenteAspiradorMain {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         int tamanhoMundo = InformarValor();
-        System.out.println("O tamanho do mundo será: [" + tamanhoMundo + "]:[" + tamanhoMundo + "]\n");
+        System.out.println("O tamanho do mundo será: X [" + tamanhoMundo + "]: Y [" + tamanhoMundo + "]\n");
         Sala sala = new Sala(tamanhoMundo);
-        sala.preencherSala();
         sala.mostrarSala();
+
+        AspiradorPo aspiradorPo = new AspiradorPo(sala);
+
+        while (aspiradorPo.isLimpezaConcluida()){
+            aspiradorPo.zerarPilha();
+            aspiradorPo.movimentar();
+            sala.mostrarSala();
+            Thread.sleep(1500);
+        }
     }
 
     /**

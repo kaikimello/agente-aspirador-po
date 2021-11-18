@@ -1,5 +1,8 @@
 package ambiente;
 
+import agente.AspiradorPo;
+import util.PosicaoXY;
+
 import java.util.Random;
 
 public class Sala {
@@ -8,12 +11,20 @@ public class Sala {
     public static final String TEXT_RESET = "\u001B[0m";
     public static final String TEXT_GREEN = "\u001B[32m";
 
+    public static final String TEXT_BLACK = "\u001B[30m";
+    public static final String TEXT_BACKGROUND_CYAN = "\u001b[46m";
+
     private int tamanho;
-    private String[][] medidas;
+    private String[][] sala;
+    private int posicaoInicialAgenteX;
+    private int posicaoInicialAgenteY;
+    private AspiradorPo aspiradorPo;
 
     public Sala(int tamanho) {
         this.tamanho = tamanho;
-        setMedidas(new String[tamanho][tamanho]);
+        setSala(new String[tamanho][tamanho]);
+        this.preencherSala();
+        this.aspiradorPo = new AspiradorPo(this);
     }
 
     public int getTamanho() {
@@ -24,12 +35,28 @@ public class Sala {
         this.tamanho = tamanho;
     }
 
-    public String[][] getMedidas() {
-        return medidas;
+    public String[][] getSala() {
+        return sala;
     }
 
-    private void setMedidas(String[][] medidas) {
-        this.medidas = medidas;
+    private void setSala(String[][] sala) {
+        this.sala = sala;
+    }
+
+    public int getPosicaoInicialAgenteX() {
+        return posicaoInicialAgenteX;
+    }
+
+    private void setPosicaoInicialAgenteX(int posicaoInicialAgenteX) {
+        this.posicaoInicialAgenteX = posicaoInicialAgenteX;
+    }
+
+    public int getPosicaoInicialAgenteY() {
+        return posicaoInicialAgenteY;
+    }
+
+    private void setPosicaoInicialAgenteY(int posicaoInicialAgenteY) {
+        this.posicaoInicialAgenteY = posicaoInicialAgenteY;
     }
 
     /**
@@ -39,17 +66,17 @@ public class Sala {
      * Retorna valor entre 0 e 1 onde
      * 0 -> 💩, 1 -> 🚩
      */
-    public void preencherSala(){
+    private void preencherSala(){
         inserirAgente();
         for (int i = 0; i < this.getTamanho(); i++){
             for (int j = 0; j < this.getTamanho(); j++){
                 int valorObjetoSala = valorAleatorio(2);
 
-                if (this.medidas[i][j] == null){
+                if (this.sala[i][j] == null){
                     if (valorObjetoSala == 1){
-                        this.medidas[i][j] = (TEXT_GREEN+" 🚩 "+TEXT_RESET);
+                        this.sala[i][j] = (TEXT_GREEN+" 🚩 "+TEXT_RESET);
                     }else{
-                        this.medidas[i][j] = (TEXT_RED+" 💩 "+TEXT_RESET);
+                        this.sala[i][j] = (TEXT_RED+" 💩 "+TEXT_RESET);
                     }
                 }
             }
@@ -65,10 +92,10 @@ public class Sala {
      * */
     private void inserirAgente() {
 
-        int posicaoIAgente = valorAleatorio(this.getTamanho());
-        int posicaoJAgente = valorAleatorio(this.getTamanho());
+        this.posicaoInicialAgenteX = valorAleatorio(this.getTamanho());
+        this.posicaoInicialAgenteY = valorAleatorio(this.getTamanho());
 
-        this.medidas[posicaoIAgente][posicaoJAgente] = (" 👾 ");
+        this.sala[posicaoInicialAgenteX][posicaoInicialAgenteY] = (TEXT_BACKGROUND_CYAN+TEXT_BLACK+" 🤖 "+TEXT_RESET);
     }
 
     /**
@@ -76,12 +103,19 @@ public class Sala {
      * comodos da sala
      */
     public void mostrarSala(){
+        atualizarPosicaoAgente();
         for (int i = 0; i < this.getTamanho(); i++){
             for (int j = 0; j < this.getTamanho(); j++){
-                System.out.print("|"+ this.medidas[i][j] + "|");
+                System.out.print("|"+ this.sala[i][j] + "|");
             }
             System.out.println();
         }
+    }
+
+    private void atualizarPosicaoAgente() {
+        PosicaoXY posicaoAspirador = this.aspiradorPo.getPosicaoXY();
+
+        this.sala[posicaoAspirador.getPosX()][posicaoAspirador.getPosY()] = (TEXT_BACKGROUND_CYAN+TEXT_BLACK+" 🤖 "+TEXT_RESET);
     }
 
 
@@ -95,5 +129,18 @@ public class Sala {
         Random gerador = new Random();
 
         return gerador.nextInt(faixaValor);
+    }
+
+    public String getValorPosicaoSala(PosicaoXY posicao) {
+        return this.sala[posicao.getPosX()][posicao.getPosY()];
+    }
+
+    public void setAgente(AspiradorPo aspiradorPo) {
+        this.aspiradorPo = aspiradorPo;
+    }
+
+    public void limpar() {
+        PosicaoXY posicaoXY = this.aspiradorPo.getPosicaoXY();
+        this.sala[posicaoXY.getPosX()][posicaoXY.getPosY()] = (TEXT_GREEN+" 🚩 "+TEXT_RESET);
     }
 }
